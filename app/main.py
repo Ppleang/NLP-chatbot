@@ -17,7 +17,7 @@ from keras.models import load_model
 import logging
 import pickle
 
-Channel_access_token = "aq1Ap78l8iwsg8gfqKBGrhg9HRroQs07TeJv2KEBQnlUcgotB2xd/WLx2xUMHmwMXiXC6rx+1zMY7DrbW1+jFYTKz+uoVM2J+UV9cOQvdLt4vKSSkH8f/GVCpZWXCXKPMZ+6EAGWL2hVctOZl12VSwdB04t89/1O/w1cDnyilFU="
+Channel_access_token = ""
 
 
 # Initialize Flask app
@@ -53,6 +53,10 @@ answer = gc.open_by_url(
 worksheet_2 = answer.worksheet('Resource-ans')
 Answer_sheet = pd.DataFrame(worksheet_2.get_all_records())
 
+answer2 = gc.open_by_url(
+    'https://docs.google.com/spreadsheets/d/1GLkhEngVAxDoyKVa0aSMIM5YS4cPGWv7LTMmWbhNi-g/edit?usp=sharing')
+worksheet_3 = answer2.worksheet('Class & Answer')
+Answer_flex = pd.DataFrame(worksheet_3.get_all_records())
 
 
 # def load_keras_model(model_path):
@@ -64,10 +68,11 @@ model_path = 'app/static/model_train-chat.h5'
 loaded_model = load_model(model_path)
 
 with open('app/static/model_tokenizer.pkl', 'rb') as tokenizer_file:
-        tokenizer = pickle.load(tokenizer_file)
+    tokenizer = pickle.load(tokenizer_file)
 # load_keras_model(model_path)
 
 
+# clean emoji & space & text to lower 
 def clean_text(text):
     # Remove emojis
     if isinstance(text, str):
@@ -99,6 +104,8 @@ def clean_text(text):
 maxlen = 17  # Adjust this based on your model's requirements
 
 
+
+
 # Define the webhook endpoint
 @app.route('/webhook', methods=['POST', 'GET'])
 def webhook():
@@ -107,8 +114,10 @@ def webhook():
         Reply_token = payload['events'][0]['replyToken']
         print(payload)
         logging.debug(Reply_token)
+        # msgType = payload['events'][0]['message']['type']  # Extract the msgType
 
-        
+    # if (msgType == "text") :
+
         # Extract the user's text message
         message = payload['events'][0]['message']['text']
         logging.debug("hi " + message)
@@ -120,66 +129,104 @@ def webhook():
 
         # Add the first reply message
         if "คาเฟ่แนวธรรมชาติ" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][0]
-            # reply_messages.append({"type": "text", "text": "CAFE"})
-            # reply_messages.append({"type": "text", "text": "NATURE"})
-        elif "คาเฟ่สายอาร์ต" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][1]
+            loopBubble(Reply_token, "คาเฟ่แนวธรรมชาติ", Channel_access_token)
+            return request.json, 200
 
-        elif "คาเฟ่สัตว์เลี้ยง" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][2]
+        elif "คาเฟ่สายอาร์ต" in message:
+            loopBubble(Reply_token, "คาเฟ่สายอาร์ต", Channel_access_token)
+            return request.json, 200
+
+        elif "คาเฟ่สัตว์เลี้ยงนำสัตว์เลี้ยงไปได้" in message:
+            loopBubble(Reply_token, "คาเฟ่นำสัตว์เลี้ยงไปได้", Channel_access_token)
+            return request.json, 200
         
         elif "คาเฟ่แนวโฮมมี่" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][3]
-            # reply_messages.append({"type": "text", "text": "CAFE"})
-            # reply_messages.append({"type": "text", "text": Answer_sheet["answer"][3]})
-        elif "คาเฟ่แฟนตาซี" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][4]
-        
-        elif "คาเฟ่วินเทจ" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][5]
-        
-        elif "คาเฟ่มินิมอล" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][6]
+            loopBubble(Reply_token, "คาเฟ่แนวโฮมมี่", Channel_access_token)
+            return request.json, 200
+
+        elif "คาเฟ่แนวแฟนตาซี" in message:
+            loopBubble(Reply_token, "คาเฟ่แนวแฟนตาซี", Channel_access_token)
+            return request.json, 200
+        elif "คาเฟ่แนววินเทจ" in message:
+            loopBubble(Reply_token, "คาเฟ่แนววินเทจ", Channel_access_token)
+            return request.json, 200
+
+        elif "คาเฟ่แนวมินิมอล" in message:
+            loopBubble(Reply_token, "คาเฟ่แนวมินิมอล", Channel_access_token)
+            return request.json, 200
 
         elif "คาเฟ่หมา" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][7]
+            loopBubble(Reply_token, "คาเฟ่หมา", Channel_access_token)
+            return request.json, 200
 
         elif "คาเฟ่แมว" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][8]
+            loopBubble(Reply_token, "คาเฟ่แมว", Channel_access_token)
+            return request.json, 200
+        
         elif "คาเฟ่อ่านหนังสือ" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][9]
+            loopBubble(Reply_token, "คาเฟ่อ่านหนังสือ", Channel_access_token)
+            return request.json, 200
+        
         elif "คาเฟ่การ์ตูน" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][10]
-        elif "คาเฟ่ญี่ปุ่น" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][11]
-        elif "คาเฟ่เกาหลี" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][12]
-          
+            loopBubble(Reply_token, "คาเฟ่การ์ตูน", Channel_access_token)
+            return request.json, 200
+        
+        elif "คาเฟ่แนวญี่ปุ่น" in message:
+            loopBubble(Reply_token, "คาเฟ่แนวญี่ปุ่น", Channel_access_token)
+            return request.json, 200
+        
+        elif "คาเฟ่แนวเกาหลี" in message:
+            loopBubble(Reply_token, "คาเฟ่แนวเกาหลี", Channel_access_token)
+            return request.json, 200
+
         elif "คาเฟ่ดอกไม้" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][13]
-        
+            loopBubble(Reply_token, "คาเฟ่ดอกไม้", Channel_access_token)
+            return request.json, 200
+
         elif "คาเฟ่น่ารัก" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][14]
-        
+            loopBubble(Reply_token, "คาเฟ่น่ารัก", Channel_access_token)
+            return request.json, 200
+
         elif "คาเฟ่บอร์ดเกม" in message:
-            Reply_message = "CAFE\n" + Answer_sheet["answer"][15] 
+            loopBubble(Reply_token, "คาเฟ่บอร์ดเกม", Channel_access_token)
+            return request.json, 200
 
             # reply_messages.append({"type": "text", "text": "CAFE"})
             # reply_messages.append({"type": "text", "text": Answer_sheet['answer'][1]})
         elif "สวัสดี" in message:
             Reply_message = "สวัสดีค่ะ"
+        
+        elif "hi" in message:
+            Reply_message = "สวัสดีค่ะ"
+
+        elif "hello" in message:
+            Reply_message = "สวัสดีค่ะ"
+
+        elif "หวัดดี" in message:
+            Reply_message = "สวัสดีค่ะ"
+        
+        elif "ฮาย" in message:
+            Reply_message = "สวัสดีค่ะ"
 
             # reply_messages.append({"type": "text", "text": "สวัสดีค่ะ"})
-        elif "type" in message:
-            flexType(Reply_token, Channel_access_token )
+        elif "ประเภทคาเฟ่" in message:
+            flexType(Reply_token, Channel_access_token)
+            return request.json, 200
+        
+        elif "คู่มือการใช้งาน" in message:
+            sendManual(Reply_token, Channel_access_token)
+            return request.json, 200
+        
+        elif "คาเฟ่แนะนำ" in message:
+            loopBubble(Reply_token, "คาเฟ่แนะนำ", Channel_access_token)
+            return request.json, 200
+        
+        elif "สุนัข" in message:
+            loopBubble(Reply_token, "คาเฟ่หมา", Channel_access_token)
             return request.json, 200
 
-
-            # reply_messages.append({"type": "text", "text": "Cafe: \n -แนวธรรมชาติ \n -แนวอาร์ต\n"})
-
         elif "developer" in message:
-            Reply_message = "cream pleang boom >0<"
+            Reply_message = "cream pleang boom p'nam >0<"
 
             # reply_messages.append({"type": "text", "text": "cream pleang boom >0<"})
         else:
@@ -189,26 +236,30 @@ def webhook():
             data_df = pd.DataFrame.from_records(df)
 
             new_sentence_tokenized = [word_tokenize(message)]
-            new_sentence_sequences = tokenizer.texts_to_sequences(new_sentence_tokenized)
-            new_sentence_padded = pad_sequences(new_sentence_sequences, maxlen=17, padding="post")
+            new_sentence_sequences = tokenizer.texts_to_sequences(
+                new_sentence_tokenized)
+            new_sentence_padded = pad_sequences(
+                new_sentence_sequences, maxlen=17, padding="post")
             logit = loaded_model.predict(new_sentence_padded)
             predicted_class = np.argmax(logit)
             confidence = logit[0][predicted_class]
 
             if confidence > confidence_threshold:
-                Reply_message = str(confidence) + "\n" + Answer_sheet["answer"][predicted_class] 
+                # flexReplyClass(Reply_token,  Answer_sheet["class"][predicted_class], Channel_access_token )
+                loopBubble(Reply_token, Answer_sheet["class"][predicted_class], Channel_access_token)
+                return request.json, 200
 
             else:
-                Reply_message = "ขอโทษค่ะ เราไม่เข้าใจคำถามคุณ" + str(confidence) + Answer_sheet['class'][predicted_class] 
+                Reply_message = "ขอโทษค่ะ เราไม่เข้าใจคำถามคุณ"
 
-               
-    
-        print("hi " + Reply_message ,flush=True)
+        print("hi " + Reply_message, flush=True)
 
-        ReplyMessage(Reply_token,Reply_message, Channel_access_token)
+        ReplyMessage(Reply_token, Reply_message, Channel_access_token)
         return request.json, 200
 
-
+        # else :
+        #     randSticker(Reply_token , Channel_access_token)
+        #     return request.json, 200
 
         # return jsonify(response)
     elif request.method == 'GET':
@@ -216,6 +267,218 @@ def webhook():
     else:
         abort(400)
 
+
+
+def sendManual(Reply_token,  Line_Access_Token):
+    LINE_API = 'https://api.line.me/v2/bot/message/reply/'
+
+    Authorization = 'Bearer {}'.format(Line_Access_Token)
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': Authorization
+    }
+    data = {
+        "replyToken": Reply_token,
+        "messages": [{
+            "type": "image",
+            "originalContentUrl": "https://i.imgur.com/NDy2s7o.jpg",
+            "previewImageUrl": "https://i.imgur.com/NDy2s7o.jpg"
+        }
+        ]
+    }
+
+    data = json.dumps(data)
+    r = requests.post(LINE_API, headers=headers, data=data)
+    logging.info(f"Response from LINE API: {r.status_code} - {r.text}")
+
+    return 200
+
+
+def loopBubble(Reply_token, train_class, Line_Access_Token):
+    LINE_API = 'https://api.line.me/v2/bot/message/reply/'
+
+    Authorization = 'Bearer {}'.format(Line_Access_Token)
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': Authorization
+    }
+
+    res = Answer_flex[Answer_flex['Class'] == train_class]
+
+    # Assuming 'res' is a DataFrame with the data you mentioned
+
+    # Extract data from the DataFrame
+    imgUrls = res['Imgurl'].values
+    names = res['Name'].values
+    stations = res['Station'].values
+    contacts = res['Contact'].values
+    times = res['Time'].values
+    maps = res['Map'].values
+
+    # Initialize an empty list to store bubble data
+    bubbles = []
+
+    # Loop through the data and create a bubble for each item
+    for i in range(len(res)):
+        bubble = {
+            "type": "bubble",
+            "hero": {
+                "type": "image",
+                "url": imgUrls[i],
+                "aspectMode": "cover",
+                "size": "full",
+                "aspectRatio": "20:13"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": names[i],
+                        "weight": "bold",
+                        "size": "xl"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "lg",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Station",
+                                        "color": "#7D7C7C",
+                                        "size": "sm",
+                                        "flex": 0
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": stations[i],
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 2,
+                                        "weight": "bold",
+                                        "action": {
+                                            "type": "message",
+                                            "label": "action",
+                                            "text": "station"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "Time",
+                                        "color": "#7D7C7C",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": times[i],
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5,
+                                        "weight": "bold",
+                                        "action": {
+                                            "type": "message",
+                                            "label": "action",
+                                            "text": "hello"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "spacing": "none",
+                "offsetTop": "none"
+            },
+            "footer": {
+                "type": "box",
+                "layout": "horizontal",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "Contact",
+                            "uri": contacts[i]
+                        },
+                        "color": "#C5DFF8"
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "Google Map",
+                            "uri": maps[i]
+                        },
+                        "color": "#CCEEBC"
+                    }
+                ],
+                "flex": 0
+            },
+            "size": "mega",
+            "styles": {
+                "body": {
+                    "backgroundColor": "#FEFCF3"
+                },
+                "footer": {
+                    "backgroundColor": "#FEFCF3"
+                }
+            }
+        }
+
+        # Add the bubble to the list of bubbles
+        bubbles.append(bubble)
+
+    flex = {
+        "type": "carousel",
+        "contents": bubbles
+    }
+
+    flex_str = json.dumps(flex)
+
+    # Create the JSON structure with the list of bubbles
+
+    flexClass = json.loads(flex_str)
+
+    data = {
+        "replyToken": Reply_token,
+        "messages": [
+            {
+                "type": "flex",
+                "altText": "Classify cafe",  # Specify the altText
+                "contents": flexClass
+            }
+        ]
+    }
+
+    data = json.dumps(data)  # Convert to JSON
+    r = requests.post(LINE_API, headers=headers, data=data)
+
+    # Log the response
+    logging.info(f"Response from LINE API: {r.status_code} - {r.text}")
+    return 200
 
 
 def flexType(Reply_token,  Line_Access_Token):
@@ -228,9 +491,8 @@ def flexType(Reply_token,  Line_Access_Token):
     }
 
     flex = '''
-    {
+        {
         "type": "bubble",
-        "size": "mega",
         "header": {
             "type": "box",
             "layout": "vertical",
@@ -242,158 +504,162 @@ def flexType(Reply_token,  Line_Access_Token):
                 "weight": "bold",
                 "align": "center"
             }
-        ]
-    },
-    "body": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "contents": [
-            {
-                "type": "text",
-                "text": "คาเฟ่แนวธรรมชาติ",
-                "align": "center"
-            },
-            {
-                "type": "text",
-                "text": "คาเฟ่สายอาร์ต",
-                "align": "center"
-            }
-        ],
-            "margin": "xs"
+            ]
         },
-        {
+        "body": {
             "type": "box",
-            "layout": "horizontal",
+            "layout": "vertical",
             "contents": [
             {
-                "type": "text",
-                "text": "คาเฟ่สัตว์เลี้ยง",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แนวธรรมชาติ",
+                "text": "คาเฟ่แนวธรรมชาติ"
+                },
+                "style": "secondary"
             },
             {
-                "type": "text",
-                "text": "คาเฟ่โฮมมี่",
-                "align": "center"
-            }
-        ],
-            "margin": "md"
-        },
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "contents": [
-            {
-                "type": "text",
-                "text": "คาเฟ่แฟนตาซี",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่สายอาร์ต",
+                "text": "คาเฟ่สายอาร์ต"
+                }
             },
             {
-                "type": "text",
-                "text": "คาเฟ่วินเทจ",
-                "align": "center"
-            }
-        ],
-            "margin": "md"
-        },
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "contents": [
-            {
-                "type": "text",
-                "text": "คาเฟ่แนวมินิมอล",
-                "gravity": "top",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่นำสัตว์เลี้ยงไปได้",
+                "text": "คาเฟ่นำสัตว์เลี้ยงไปได้"
+                },
+                "style": "secondary",
+                "color": "#F2D8D8"
             },
             {
-                "type": "text",
-                "text": "คาเฟ่หมา",
-                "align": "center"
-            }
-        ],
-            "margin": "md"
-        },
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "contents": [
-            {
-                "type": "text",
-                "text": "คาเฟ่แมว",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แนวโฮมมี่",
+                "text": "คาเฟ่แนวโฮมมี่"
+                }
             },
             {
-                "type": "text",
-                "text": "คาเฟ่อ่านหนังสือ",
-                "align": "center"
-            }
-        ],
-            "margin": "md"
-        },
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "contents": [
-            {
-                "type": "text",
-                "text": "คาเฟ่การ์ตูน",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แนวแฟนตาซี",
+                "text": "คาเฟ่แนวแฟนตาซี"
+                },
+                "style": "secondary"
             },
             {
-                "type": "text",
-                "text": "คาเฟ่แนวญี่ปุ่น",
-                "align": "center"
-            }
-        ],
-            "margin": "md"
-        },
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "contents": [
-            {
-                "type": "text",
-                "text": "คาเฟ่แนวเกาหลี",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แนววินเทจ",
+                "text": "คาเฟ่แนววินเทจ"
+                }
             },
             {
-                "type": "text",
-                "text": "คาเฟ่ดอกไม้",
-                "align": "center"
-            }
-        ],
-            "margin": "md"
-        },
-        {
-            "type": "box",
-            "layout": "horizontal",
-            "contents": [
-            {
-                "type": "text",
-                "text": "คาเฟ่น่ารัก ๆ ชมพู",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แนวมินิมอล",
+                "text": "คาเฟ่แนวมินิมอล"
+                },
+                "style": "secondary",
+                "color": "#F2D8D8"
             },
             {
-                "type": "text",
-                "text": "คาเฟ่บอร์ดเกม",
-                "align": "center"
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่หมา",
+                "text": "คาเฟ่หมา"
+                }
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แมว",
+                "text": "คาเฟ่แมว"
+                },
+                "style": "secondary"
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่อ่านหนังสือ",
+                "text": "คาเฟ่อ่านหนังสือ"
+                }
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่การ์ตูน",
+                "text": "คาเฟ่การ์ตูน"
+                },
+                "style": "secondary",
+                "color": "#F2D8D8"
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แนวญี่ปุ่น",
+                "text": "คาเฟ่แนวญี่ปุ่น"
+                }
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่แนวเกาหลี",
+                "text": "คาเฟ่แนวเกาหลี"
+                },
+                "style": "secondary"
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่ดอกไม้",
+                "text": "คาเฟ่ดอกไม้"
+                }
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่น่ารัก ๆ",
+                "text": "คาเฟ่น่ารัก"
+                },
+                "color": "#F2D8D8",
+                "style": "secondary"
+            },
+            {
+                "type": "button",
+                "action": {
+                "type": "message",
+                "label": "คาเฟ่บอร์ดเกม",
+                "text": "คาเฟ่บอร์ดเกม"
+                }
             }
-        ],
-            "margin": "md"
-        }
-        ],
+            ],
             "backgroundColor": "#F1F0E8"
-            },
-            "styles": {
+        },
+        "size": "mega",
+        "styles": {
             "header": {
-            "backgroundColor": "#ADC4CE"
+            "backgroundColor": "#F5F0BB"
             }
         }
-    } '''
+    }'''
 
     flexType = json.loads(flex)
 
@@ -403,11 +669,10 @@ def flexType(Reply_token,  Line_Access_Token):
             {
                 "type": "flex",
                 "altText": "Type of cafe options",  # Specify the altText
-                "contents": flex
+                "contents": flexType
             }
         ]
     }
-
 
     data = json.dumps(data)  # Convert to JSON
     r = requests.post(LINE_API, headers=headers, data=data)
@@ -446,6 +711,7 @@ def ReplyMessage(Reply_token, TextMessage, Line_Acces_Token):
     logging.info(f"Response from LINE API: {r.status_code} - {r.text}")
 
     return 200
+
 
 if __name__ == '__main__':
     # Configure logging
